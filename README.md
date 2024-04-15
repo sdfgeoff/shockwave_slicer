@@ -42,10 +42,10 @@ And here's a potential arrangement of layers that avoids needing any support
 ![Step5](documents/step5.png)
 
 
-How well does it work? Here's the complete shape sliced:
+How well does it work? Here's the complete shape sliced:  
 ![A model shaped like a question mark with slice planes](documents/demo_layers.png)
 
-And even if there are overhangs on multiple axis it indeed does conical slices properly:
+And even if there are overhangs on multiple axis it indeed does conical slices properly:  
 ![A model with overhangs on both X and Y axis sliced into layers](documents/demo_layers2.png)
 
 
@@ -73,7 +73,7 @@ And even if there are overhangs on multiple axis it indeed does conical slices p
 
 # Why "Shockwave"?
 I call it "shockwave" because when drawing diagrams to figure this out I noticed
-how the layers look like wave propagation:
+how the layers look like wave propagation:  
 ![hand-drawn sketch of layers](documents/shockwave.png)
 
 It looks like someone has applied an impact to the bed and are modeling the way the
