@@ -24,6 +24,32 @@ And here's a potential arrangement of layers that avoids needing any support
 
 ![A model shaped like a question mark with slice planes](documents/demo_layers.png)
 
+
+## Prior Work and Suggested Reading
+
+
+#### Conical Slicing:
+Michael Wüthrich ,Maurus Gubser, Wilfried J. Elspass 1 and Christian Jaeger
+(2021). [A Novel Slicing Strategy to Print Overhangs without Support Material](https://www.mdpi.com/2076-3417/11/18/8760)  
+This is related to the RotBot Project
+
+#### Arachne Slicer:
+Tim Kuipers, Eugeni L. Doubrovski, Jun Wu, Charlie C.L. Wang  (2020). [A Framework for Adaptive Width Control of Dense Contour-Parallel Toolpaths in Fused Deposition Modeling](https://www.sciencedirect.com/science/article/pii/S0010448520301007)  
+Reading this paper is what prompted me to start thinking about this problem. I wondered if it's solution could be generatlized to 3 dimensions to generate variable layer heights. Yes you could generalize it, but you need a magical 6DOF printer and the print "bed" wouldn't exist.
+
+#### Non Planar Surfaces
+Daniel Ahlers (2018) [3D Printing of Nonplanar Layers for Smooth Surface Generation](https://tams.informatik.uni-hamburg.de/publications/2018/MSc_Daniel_Ahlers.pdf)
+
+James Sherwood Page, Autodesk Inc (2015) [Systems and methods for improved 3D printing (US10005126B2)](https://patents.google.com/patent/US10005126B2/en)  
+To the best of my knowledge, this work does not infringe on this patent as the generated tool paths do not conform to the object surface, but it does describe non-planar printing.
+
+
+#### Other Thanks
+Stefan Hermann, [CNC Kitchen](https://www.cnckitchen.com/)  
+For communicating developments in the 3D printing space and putting them to the test in a scientifically rigorous manner. 
+
+
+
 # How does this work?
 
 1. Given a model to print (red) An already printed part (green) And the previosly printed layer (blue)  
