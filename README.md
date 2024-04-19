@@ -29,9 +29,11 @@ And here's a potential arrangement of layers that avoids needing any support
 
 
 #### Conical Slicing:
-Michael Wüthrich ,Maurus Gubser, Wilfried J. Elspass 1 and Christian Jaeger
+Michael Wüthrich, Maurus Gubser, Wilfried J. Elspass 1 and Christian Jaeger
 (2021). [A Novel Slicing Strategy to Print Overhangs without Support Material](https://www.mdpi.com/2076-3417/11/18/8760)  
-This is related to the RotBot Project
+This is the first description of printing in cone shapes to avoid overhangs.
+
+Rene K. Mueller (2021) [Slicer4RTN Blog](https://xyzdims.com/2021/02/26/3d-printing-conic-slicing-for-rotating-tilted-nozzle-rtn/)
 
 #### Arachne Slicer:
 Tim Kuipers, Eugeni L. Doubrovski, Jun Wu, Charlie C.L. Wang  (2020). [A Framework for Adaptive Width Control of Dense Contour-Parallel Toolpaths in Fused Deposition Modeling](https://www.sciencedirect.com/science/article/pii/S0010448520301007)  
