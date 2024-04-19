@@ -1,10 +1,13 @@
-from typing import List
+from typing import List, TypeAlias
 from pydantic import BaseModel
 from dataclasses import dataclass
 import trimesh
+import manifold3d
 
-ManifoldVolume = trimesh.Trimesh
-Surface = trimesh.Trimesh
+
+GenericModel: TypeAlias = trimesh.Trimesh
+ManifoldVolume: TypeAlias = manifold3d.Manifold
+Surface: TypeAlias = trimesh.Trimesh
 
 
 class Position:

@@ -14,9 +14,7 @@ from . import util
 
 
 
-def slice_volume(config: Configuration, volume: ManifoldVolume) -> List[Slice]:
-
-    assert volume.is_watertight
+def slice_volume(config: Configuration, model: ManifoldVolume) -> List[Slice]:
 
     # The nozzle cone descibes where the nozzle can print given a piece of existing geometry at (0,0,0)
     # A cone is just an approxmiation.
@@ -37,33 +35,36 @@ def slice_volume(config: Configuration, volume: ManifoldVolume) -> List[Slice]:
     slices = []
 
     previous_printed_surface = util.get_print_bed_surface(config)
-    previous_printed_volume = operations.extrude(previous_printed_surface, config.LAYER_HEIGHT)
-    for i in range(25):
-        print(i)
+    previous_printed_volume = util.mesh_to_manifold(
+        operations.extrude(previous_printed_surface, config.LAYER_HEIGHT)
+    )
 
+
+    for i in range(18):
+        print(i)
         extended_surface = operations.inflate(previous_printed_surface, config.LAYER_HEIGHT)
         printable_volume = operations.approx_minkowski(extended_surface, nozzle_cone)
         assert printable_volume.is_watertight
+        printable_volume_manifold = util.mesh_to_manifold(printable_volume)
 
-        volume_we_want_to_print = volume.intersection(
-            printable_volume, engine="manifold"
-        )
-        volume_we_want_to_print = volume_we_want_to_print.difference(
-            previous_printed_volume, engine="manifold"
-        )
 
-        if volume_we_want_to_print.is_empty:
+        volume_we_want_to_print = model.__xor__(
+            printable_volume_manifold
+        )
+        volume_we_want_to_print = volume_we_want_to_print.__sub__(
+            previous_printed_volume
+        )
+        # util.show_manifold(volume_we_want_to_print)
+
+        if volume_we_want_to_print.volume == 0:
             break
 
-        if not volume_we_want_to_print.is_watertight:
-            volume_we_want_to_print.export("failed_watertight.obj")
-            raise Exception("Volume is not watertight")
-
         surface_to_print = operations.get_mesh_faces_in_direction(
-            volume_we_want_to_print,
+            util.manifold_to_mesh(volume_we_want_to_print),
             [0, 0, 1],
             angle_tolerance=np.radians(config.LAYER_PERMISSABLE_ANGLE_DEGREES * 2),
         )
+        previous_printed_surface = surface_to_print
 
         slice = Slice(
             volume=volume_we_want_to_print,
@@ -71,17 +72,9 @@ def slice_volume(config: Configuration, volume: ManifoldVolume) -> List[Slice]:
         )
         slices.append(slice)
 
-        previous_printed_volume = operations.inflate(
-            volume_we_want_to_print, 0.01
-        ).union(previous_printed_volume)
-        if not previous_printed_volume.is_watertight:
-            previous_printed_volume.export("failed_watertight.obj")
-            # print_surfaces_mesh = trimesh.util.concatenate(print_surfaces)
-            # print_surfaces_mesh.export("surfaces.obj")
+        inflated_volume_we_want_to_print = util.mesh_to_manifold(operations.inflate(util.manifold_to_mesh(volume_we_want_to_print), 0.01))
 
-            # print_surfaces_mesh.show()
-            raise Exception("Volume is not watertight")
-        previous_printed_surface = surface_to_print
+        previous_printed_volume = previous_printed_volume.__add__(inflated_volume_we_want_to_print)
 
     # Create a mesh of all the surfaces
     print_surfaces = [slice.surface for slice in slices]
