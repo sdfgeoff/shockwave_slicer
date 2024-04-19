@@ -1,0 +1,54 @@
+from typing import List
+from pydantic import BaseModel
+from dataclasses import dataclass
+import trimesh
+
+ManifoldVolume = trimesh.Trimesh
+Surface = trimesh.Trimesh
+
+
+class Position:
+    x: float
+    y: float
+    z: float
+
+
+class Normal:
+    x: float
+    y: float
+    z: float
+
+
+class LineStringPoint:
+    position: Position
+    normal: Normal
+
+
+class LineString:
+    points: List[LineStringPoint]
+
+
+@dataclass
+class Slice():
+    volume: ManifoldVolume
+    surface: Surface
+
+
+
+class Configuration(BaseModel):
+    LAYER_HEIGHT: float = 0.3
+    LAYER_PERMISSABLE_ANGLE_DEGREES: float = 15
+    PRINT_BED_SURFACE: str = "Bed.stl"
+
+    volumetric_flow_mm3s: float = 7
+    filament_diameter_mm: float = 1.75
+    max_print_feedrate_mm_s: float = 300
+
+    bed_temperature: float = 60
+    extruder_temperature: float = 200
+    fan_speed: float = 255
+
+    def __hash__(self):
+        return hash((type(self),) + tuple(self.__dict__.values()))
+
+

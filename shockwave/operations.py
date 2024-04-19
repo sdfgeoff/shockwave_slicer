@@ -1,28 +1,19 @@
+from typing import Any, List
 import trimesh
 import numpy as np
 
-def get_mesh_faces_in_direction(mesh, direction_normal, tol_dot=0.01):
-    face_idxs = []
-    for face_idx, face_normal in enumerate(mesh.face_normals):
-        face_normal = face_normal / np.linalg.norm(face_normal)
-        face_dir_dot = np.dot(face_normal, direction_normal)
-        if face_dir_dot > tol_dot:  # face normal in same direction ?
-            face_idxs.append(face_idx)
-    return mesh.faces[face_idxs]
 
 
-def extrude(mesh: trimesh.Geometry, distance: float):
+def extrude(mesh: trimesh.Trimesh, distance: float):
     faces_to_extrude = mesh.faces
 
     # stack the (n,3) faces into (3*n, 2) edges
     edges = trimesh.geometry.faces_to_edges(faces_to_extrude)
     edges_sorted = np.sort(edges, axis=1)
     # edges which only occur once are on the boundary of the polygon
-    edges_unique = trimesh.grouping.group_rows(
-        edges_sorted, require_count=1)
-    
+    edges_unique = trimesh.grouping.group_rows(edges_sorted, require_count=1)
+
     edges_extruding = edges[edges_unique]
-  
 
     # (n, 3, 2) set of line segments (positions, not references)
     boundary = mesh.vertices[edges_extruding]
@@ -33,8 +24,7 @@ def extrude(mesh: trimesh.Geometry, distance: float):
     vertical = np.tile(boundary.reshape((-1, 3)), 2).reshape((-1, 3))
     boundary_direction = np.tile(boundary_normals.reshape((-1, 3)), 2).reshape((-1, 3))
     vertical[1::2] += boundary_direction[1::2]
-    vertical_faces = np.tile([3, 1, 2, 2, 1, 0],
-                             (len(boundary), 1))
+    vertical_faces = np.tile([3, 1, 2, 2, 1, 0], (len(boundary), 1))
     vertical_faces += np.arange(len(boundary)).reshape((-1, 1)) * 4
     vertical_faces = vertical_faces.reshape((-1, 3))
 
@@ -51,7 +41,7 @@ def extrude(mesh: trimesh.Geometry, distance: float):
     faces.extend(bottom_faces_seq)
     faces.extend(top_faces_seq + len(mesh.vertices))
     faces.extend(vertical_faces + len(mesh.vertices) + len(mesh.vertices))
-        
+
     vertices = []
     vertices.extend(mesh.vertices)
     vertices.extend(mesh.vertices.copy() + mesh.vertex_normals * distance)
@@ -69,18 +59,17 @@ def extrude(mesh: trimesh.Geometry, distance: float):
 
     # create mesh object
     extruded_mesh = trimesh.Trimesh(vertices=vertices, faces=faces)
-    extruded_mesh.fix_normals() # somehow face normals are inverted for some `direction`, fixing it here
+    extruded_mesh.fix_normals()  # somehow face normals are inverted for some `direction`, fixing it here
     return extruded_mesh
 
-def inflate(mesh: trimesh.Trimesh, distance: float):
+
+def inflate(mesh: trimesh.Trimesh, distance: float) -> trimesh.Trimesh:
     return trimesh.Trimesh(
-        vertices=mesh.vertices + mesh.vertex_normals * distance,
-        faces=mesh.faces
+        vertices=mesh.vertices + mesh.vertex_normals * distance, faces=mesh.faces
     )
 
 
-
-def approx_minkowski(mesh1: trimesh.Trimesh, mesh2: trimesh.Trimesh):
+def approx_minkowski(mesh1: trimesh.Trimesh, mesh2: trimesh.Trimesh) -> trimesh.Trimesh:
     # This is not a true minkowski sum. It is the convex hull of the minkowski sum, which
     # is a faster approximation as it doens't need convex decomposition.
     # However it is only valid for parts without holes in them, so will need to be replaced soon
@@ -91,8 +80,7 @@ def approx_minkowski(mesh1: trimesh.Trimesh, mesh2: trimesh.Trimesh):
     return trimesh.convex.convex_hull(all_verts)
 
 
-
-def get_mesh_faces_in_direction(mesh, direction_normal, angle_tolerance=0.01):
+def get_mesh_faces_in_direction(mesh, direction_normal, angle_tolerance=0.01) -> trimesh.Trimesh:
     tol_dot = np.cos(angle_tolerance)
     face_idxs = []
     for face_idx, face_normal in enumerate(mesh.face_normals):
