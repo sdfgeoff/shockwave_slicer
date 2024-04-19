@@ -39,6 +39,8 @@ class Configuration(BaseModel):
     LAYER_HEIGHT: float = 0.3
     LAYER_PERMISSABLE_ANGLE_DEGREES: float = 15
     PRINT_BED_SURFACE: str = "Bed.stl"
+    PRINT_VOLUME_HEIGHT: float = 200
+
 
     volumetric_flow_mm3s: float = 7
     filament_diameter_mm: float = 1.75
