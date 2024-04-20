@@ -14,8 +14,8 @@ from . import manifold_fixer
 def run():
     # Print bed
     # todo: use trimesh library
-    model = util.load_mesh("Suzanne.stl")
-    # model = util.load_mesh("TestModel.stl")
+    #model = util.load_mesh("Suzanne.stl")
+    model = util.load_mesh("TestModel.stl")
 
     config = Configuration()
     
@@ -27,6 +27,13 @@ def run():
     manifold_geom = manifold_fixer.ensure_manifold_and_on_bed(config, model)
 
     slices = slice_volume(config, manifold_geom)
+
+    # Create a mesh of all the surfaces
+    print_surfaces = [slice.surface for slice in slices]
+    print_surfaces_mesh: trimesh.Trimesh = trimesh.util.concatenate(print_surfaces)
+    print_surfaces_mesh.show()
+
+    print_surfaces_mesh.export("slices.obj")
 
 
 

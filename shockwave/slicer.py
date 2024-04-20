@@ -28,19 +28,18 @@ def slice_volume(config: Configuration, model: ManifoldVolume) -> List[Slice]:
         height=nozzle_cone_height,
         sections=8,
     )
-    nozzle_cone.vertices -= [0, 0, nozzle_cone_height / 2]
+    nozzle_cone.vertices -= [0, 0, nozzle_cone_height]
     assert nozzle_cone.is_watertight
     assert nozzle_cone.is_volume
+
+    nozzle_cone.export("NozzleCone.obj")
 
     slices = []
 
     previous_printed_surface = util.get_print_bed_surface(config)
-    previous_printed_volume = util.mesh_to_manifold(
-        operations.extrude(previous_printed_surface, config.LAYER_HEIGHT)
-    )
+    remaining_to_print = model
 
-
-    for i in range(18):
+    for i in range(1000):
         print(i)
         extended_surface = operations.inflate(previous_printed_surface, config.LAYER_HEIGHT)
         printable_volume = operations.approx_minkowski(extended_surface, nozzle_cone)
@@ -48,13 +47,10 @@ def slice_volume(config: Configuration, model: ManifoldVolume) -> List[Slice]:
         printable_volume_manifold = util.mesh_to_manifold(printable_volume)
 
 
-        volume_we_want_to_print = model.__xor__(
-            printable_volume_manifold
-        )
-        volume_we_want_to_print = volume_we_want_to_print.__sub__(
-            previous_printed_volume
-        )
-        # util.show_manifold(volume_we_want_to_print)
+        inters, diff = remaining_to_print.split(printable_volume_manifold)
+
+        remaining_to_print = diff
+        volume_we_want_to_print = inters
 
         if volume_we_want_to_print.volume == 0:
             break
@@ -66,23 +62,15 @@ def slice_volume(config: Configuration, model: ManifoldVolume) -> List[Slice]:
         )
         previous_printed_surface = surface_to_print
 
+
+        if len(surface_to_print.faces) == 0:
+            break
+
         slice = Slice(
             volume=volume_we_want_to_print,
             surface=surface_to_print,
         )
         slices.append(slice)
 
-        inflated_volume_we_want_to_print = util.mesh_to_manifold(operations.inflate(util.manifold_to_mesh(volume_we_want_to_print), 0.01))
-
-        previous_printed_volume = previous_printed_volume.__add__(inflated_volume_we_want_to_print)
-
-    # Create a mesh of all the surfaces
-    print_surfaces = [slice.surface for slice in slices]
-    print_surfaces_mesh: trimesh.Trimesh = trimesh.util.concatenate(print_surfaces)
-    print_surfaces_mesh.show()
 
     return slices
-
-    # Minkowski causes vertex count to increase a lot every iteration.
-    # -> Drape method? Select bounding, extend and move on Z?
-    # -> Facets to simplify?
