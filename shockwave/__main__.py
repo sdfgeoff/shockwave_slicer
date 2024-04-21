@@ -7,11 +7,10 @@ import json
 from . import operations
 from .configuration import Configuration
 from .slicer import slice_volume
+from .perimeter import generate_extrusions
 from . import util
 
 from . import manifold_fixer
-
-
 
 
 CONFIG_FILE_PATH = "config.json"
@@ -44,12 +43,16 @@ def run():
     slices = slice_volume(config, manifold_geom)
 
     # Create a mesh of all the surfaces
-    print_surfaces = [slice.surface for slice in slices]
-    print_surfaces_mesh: trimesh.Trimesh = trimesh.util.concatenate(print_surfaces)
-    print_surfaces_mesh.show()
+    # print_surfaces = [slice.surface for slice in slices]
+    # print_surfaces_mesh: trimesh.Trimesh = trimesh.util.concatenate(print_surfaces)
+    # print_surfaces_mesh.export("slices.obj")
 
-    print_surfaces_mesh.export("slices.obj")
-
+    # It would be nice to do this in parallel, but manifold objects aren't pickleable
+    all_linestrings = []
+    for slice in slices:
+        linestrings = generate_extrusions(config, slice)
+        all_linestrings.extend(linestrings)
+        break
 
 
 
