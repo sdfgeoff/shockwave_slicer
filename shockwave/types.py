@@ -24,7 +24,18 @@ class Normal:
 
 class LineStringPoint:
     position: Position
+    """ The location of this point in 3D space."""
+
     normal: Normal
+    """
+    A normal to the line that indicates what direction an extruder should approach this point from.
+    The nozzle points along the negative directin, so a normal of (0,0,1) will have the extruder approach
+    from the top/positive Z direction.
+    """
+
+    area: float
+    """ The cross-sectional area at this point of the line. This can be used to determine the
+    volume of the line by multiplying by the distance to the next point."""
 
 
 class LineString:
@@ -35,25 +46,3 @@ class LineString:
 class Slice():
     volume: ManifoldVolume
     surface: Surface
-
-
-
-class Configuration(BaseModel):
-    LAYER_HEIGHT: float = 0.3
-    LAYER_PERMISSABLE_ANGLE_DEGREES: float = 15
-    PRINT_BED_SURFACE: str = "Bed.stl"
-    PRINT_VOLUME_HEIGHT: float = 200
-
-
-    volumetric_flow_mm3s: float = 7
-    filament_diameter_mm: float = 1.75
-    max_print_feedrate_mm_s: float = 300
-
-    bed_temperature: float = 60
-    extruder_temperature: float = 200
-    fan_speed: float = 255
-
-    def __hash__(self):
-        return hash((type(self),) + tuple(self.__dict__.values()))
-
-

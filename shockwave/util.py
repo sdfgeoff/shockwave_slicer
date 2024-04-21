@@ -1,6 +1,7 @@
 import functools
 from manifold3d import Manifold, Mesh
-from .types import Configuration, GenericModel, ManifoldVolume
+from .types import GenericModel, ManifoldVolume
+from .configuration import Configuration
 import trimesh
 import numpy as np
 
@@ -10,7 +11,7 @@ def load_mesh(path: str) -> GenericModel:
 
 @functools.lru_cache
 def get_print_bed_surface(config: Configuration) -> GenericModel:
-    mesh: trimesh.Trimesh = load_mesh(config.PRINT_BED_SURFACE)
+    mesh: trimesh.Trimesh = load_mesh(config.printer.print_bed_surface)
     return mesh
 
 

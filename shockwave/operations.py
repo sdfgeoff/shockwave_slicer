@@ -117,8 +117,10 @@ def exact_minkowski(mesh1: trimesh.Trimesh, mesh2: trimesh.Trimesh) -> trimesh.T
 
     unioned = manifold3d.Manifold.batch_boolean(volumes, manifold3d.OpType.Add)
     as_mesh = util.manifold_to_mesh(unioned)
+
     if not as_mesh.is_watertight:
         print("Warning: Minkowski sum is not watertight")
+        as_mesh.export("non-watertight.obj")
         as_mesh.show()
     assert as_mesh.is_watertight
     return as_mesh

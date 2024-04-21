@@ -3,7 +3,7 @@ from manifold3d import Mesh
 import trimesh
 
 from . import operations
-from .types import Configuration
+from .configuration import Configuration
 from .slicer import slice_volume
 from . import util
 
