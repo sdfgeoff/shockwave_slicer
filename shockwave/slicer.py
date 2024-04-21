@@ -42,7 +42,7 @@ def slice_volume(config: Configuration, model: ManifoldVolume) -> List[Slice]:
     for i in range(1000):
         print(i)
         extended_surface = operations.inflate(previous_printed_surface, config.LAYER_HEIGHT)
-        printable_volume = operations.approx_minkowski(extended_surface, nozzle_cone)
+        printable_volume = operations.exact_minkowski(extended_surface, nozzle_cone)
         assert printable_volume.is_watertight
         printable_volume_manifold = util.mesh_to_manifold(printable_volume)
 

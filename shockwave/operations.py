@@ -1,6 +1,8 @@
 from typing import Any, List
 import trimesh
 import numpy as np
+from . import util
+import manifold3d
 
 
 
@@ -78,6 +80,48 @@ def approx_minkowski(mesh1: trimesh.Trimesh, mesh2: trimesh.Trimesh) -> trimesh.
         for vert2 in mesh2.vertices:
             all_verts.append(vert + vert2)
     return trimesh.convex.convex_hull(all_verts)
+
+def exact_minkowski(mesh1: trimesh.Trimesh, mesh2: trimesh.Trimesh) -> trimesh.Trimesh:
+    # This is a true minkowski sum, but it is very slow as it assumes the entire input meshes are all concave
+    # It should be replaced with a faster algorithm soon
+
+    convex1 = []
+    if trimesh.convex.is_convex(mesh1):
+        convex1.append(mesh1.vertices)
+    else:
+        for face in mesh1.faces:
+            verts = []
+            for vert in face:
+                verts.append(mesh1.vertices[vert])
+            convex1.append(verts)
+
+    convex2 = []
+    if trimesh.convex.is_convex(mesh2):
+        convex2.append(mesh2.vertices)
+    else:
+        for face in mesh2.faces:
+            verts = []
+            for vert in face:
+                verts.append(mesh2.vertices[vert])
+            convex2.append(verts)
+
+    volumes = []
+    for verts1 in convex1:
+        for verts2 in convex2:
+            verts = []
+            for vert in verts1:
+                for vert2 in verts2:
+                    verts.append(vert + vert2)
+            hull = trimesh.convex.convex_hull(verts)
+            volumes.append(util.mesh_to_manifold(hull))
+
+    unioned = manifold3d.Manifold.batch_boolean(volumes, manifold3d.OpType.Add)
+    as_mesh = util.manifold_to_mesh(unioned)
+    if not as_mesh.is_watertight:
+        print("Warning: Minkowski sum is not watertight")
+        as_mesh.show()
+    assert as_mesh.is_watertight
+    return as_mesh
 
 
 def get_mesh_faces_in_direction(mesh, direction_normal, angle_tolerance=0.01) -> trimesh.Trimesh:
