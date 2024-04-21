@@ -85,7 +85,7 @@ And even if there are overhangs on multiple axis it indeed does conical slices p
 Things I want to do:
  - POC for 3D perimeter/toolpath generation as outlined in documents/anatomy_of_a_slicer.md
 
-## 2024-02-18
+## 2024-04-18
 - Demo made in blender geometry nodes to visualize proof of concept:
     - Seems to work OK. 
     - Has issues with really thin layers as it tries to get the top surface exactly in line with the model. 
