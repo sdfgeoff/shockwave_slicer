@@ -7,21 +7,22 @@ When all the volumes are unioned, they should idelaly result in the input geomet
 import trimesh
 from typing import List
 import numpy as np
+import functools
 from .types import ManifoldVolume, Slice
-from .configuration import Configuration
+from .configuration import Configuration, Extruder
 from . import operations
 from . import util
 
 
-
-def get_nozzle_cone(config: Configuration) -> trimesh.Trimesh:
+@functools.lru_cache
+def get_nozzle_cone(extruder: Extruder, layer_height_mm: float) -> trimesh.Trimesh:
     """
     The nozzle cone descibes where the nozzle can print given a piece of existing geometry at (0,0,0)
     A cone is just an approxmiation -> A hypothetical 6DOF printer would have a sphere
     """
-    safe_angle = config.printer.extruders[0].safe_angle_from_nozzle_degrees
+    safe_angle = extruder.safe_angle_from_nozzle_degrees
     
-    nozzle_cone_height = 2 * config.slicer.layer_height_mm
+    nozzle_cone_height = 2 * layer_height_mm
     nozzle_cone_radius = (
         np.tan(np.radians(90 - safe_angle)) * nozzle_cone_height
     )
@@ -37,8 +38,9 @@ def get_nozzle_cone(config: Configuration) -> trimesh.Trimesh:
 
 
 def slice_volume(config: Configuration, model: ManifoldVolume) -> List[Slice]:
-    safe_angle = config.printer.extruders[0].safe_angle_from_nozzle_degrees
-    nozzle_cone = get_nozzle_cone(config)
+    extruder = config.printer.extruders[0]
+    safe_angle = extruder.safe_angle_from_nozzle_degrees
+    nozzle_cone = get_nozzle_cone(extruder, config.slicer.layer_height_mm)
 
     slices = []
 
